@@ -1,0 +1,4 @@
+include setup.cfg README.md LICENSE requirements.txt
+recursive-include codepunks *.ico *.png *.css *.gif *.pt *.mako *.html *.ini
+global-exclude __pycache__
+global-exclude *.py[co]
