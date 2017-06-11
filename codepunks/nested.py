@@ -4,14 +4,6 @@ import json
 KEY_ERR = KeyError()
 
 
-"""
-d = NestedDict()
-d["1"]["2"]["3"].setDefault("foo", "bar")
-d.setDefault("1/2/3/foo", "bar")
-
-"""
-
-
 class BaseNested():
     def __init__(self, parent=None, notfound=KEY_ERR, path_delim="/"):
         self.parent = parent
@@ -31,6 +23,15 @@ class BaseNested():
 
 
 class NestedList(BaseNested, list):
+    def __init__(self, data=None, **kwargs):
+        super().__init__(**kwargs)
+        if isinstance(data, list):
+            self.extend(data)
+            self.rationalize()
+        elif data is not None:
+            raise TypeError("Wrong type " + str(type(data)))
+
+
     def dict(self):
         nd = NestedDict(parent=self, notfound=self.notfound)
         self.append(nd)
@@ -92,6 +93,15 @@ class NestedList(BaseNested, list):
 
 
 class NestedDict(BaseNested, dict):
+    def __init__(self, data=None, **kwargs):
+        super().__init__(**kwargs)
+        if isinstance(data, dict):
+            self.update(data)
+            self.rationalize()
+        elif data is not None:
+            raise TypeError("Wrong type " + str(type(data)))
+
+
     def __missing__(self, key):
         if isinstance(self.notfound, KeyError):
             raise KeyError(key)

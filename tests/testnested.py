@@ -184,4 +184,26 @@ def testAutoRationalizeList():
     assert isinstance(l1[0], NestedDict)
     assert isinstance(l1[1], NestedList)
     assert c == c2
-    
+
+
+def testCopyList():
+    d = ["s1", {"k1": "v1"}, {"s2": {"k2": ["v2", "v3"]}}]
+    c = NestedList(d)
+
+    assert d == c
+    assert isinstance(c["1"], NestedDict)
+    assert isinstance(c[1], NestedDict)
+    assert isinstance(c["2/s2"], NestedDict)
+    assert isinstance(c["2/s2/k2"], NestedList)
+
+
+def testCopyDict():
+    d = {"s1": ["v0", "v0.1", "v0.2"],
+         "k1": "v1",
+         "s2": {"k2": ["v2", "v3"]}}
+    c = NestedDict(d)
+
+    assert d == c
+    assert isinstance(c["s1"], NestedList)
+    assert isinstance(c["s2"], NestedDict)
+    assert isinstance(c["s2/k2"], NestedList)
