@@ -207,3 +207,49 @@ def testCopyDict():
     assert isinstance(c["s1"], NestedList)
     assert isinstance(c["s2"], NestedDict)
     assert isinstance(c["s2/k2"], NestedList)
+
+
+def testMergeEmptyDict():
+    d = {"s1": {"s2": {"k3": "v3"}}}
+    c = NestedDict()
+    c.merge(d)
+
+    assert isinstance(c["s1"], NestedDict)
+    assert isinstance(c["s1/s2"], NestedDict)
+    assert isinstance(c["s1/s2/k3"], str)
+
+
+def testMergeEmptyList():
+    d = [ [ [ "k3", "v3"] ] ]
+    c = NestedList()
+    c.merge(d)
+
+    assert isinstance(c["0"], NestedList)
+    assert isinstance(c["0/0"], NestedList)
+    assert isinstance(c["0/0/0"], str)
+    assert isinstance(c["0/0/1"], str)
+
+
+def testMergeDict():
+    d = {"s1": {"s2": {"k3": "v3"}, "s2a": {"k3a": "v3a"}}}
+    c = NestedDict()
+    s1 = c.dict("s1")
+    k1 = s1["k1"] = "v1"
+    s2 = s1.dict("s2")
+    k2 = s2["k2"] = "v2"
+    c.merge(d)
+
+    assert isinstance(c["s1"], NestedDict)
+    assert isinstance(c["s1/s2"], NestedDict)
+    assert isinstance(c["s1/s2/k3"], str)
+
+
+def testMergeList():
+    d = [ [ [ "k3", "v3"] ] ]
+    c = NestedList()
+    c.merge(d)
+
+    assert isinstance(c["0"], NestedList)
+    assert isinstance(c["0/0"], NestedList)
+    assert isinstance(c["0/0/0"], str)
+    assert isinstance(c["0/0/1"], str)

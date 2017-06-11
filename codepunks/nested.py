@@ -50,10 +50,6 @@ class BaseNested():
                 nd.rationalize()
 
 
-    def merge(self, data):
-        pass
-
-
 class NestedList(BaseNested, list):
     def __init__(self, data=None, **kwargs):
         super().__init__(**kwargs)
@@ -78,6 +74,24 @@ class NestedList(BaseNested, list):
 
     def iterate(self):
         return enumerate(self)
+
+
+    def merge(self, data, do_ration=True):
+        if not isinstance(data, list):
+            raise TypeError("Must be a list or NestedList")
+        for index, val in enumerate(data):
+            if index >= len(self):
+                self.append(val)
+            elif isinstance(self[index], type(val)):
+                if isinstance(val, (dict, list)):
+                    self[index].merge(val, do_ration=False)
+                else:
+                    self[index] = val
+            else:
+                raise TypeError("Type mismatch %s / %s" %
+                                (type(self[index]), type(val)))
+        if do_ration:
+            self.rationalize()
 
 
     def __getitem__(self, key):
@@ -129,6 +143,24 @@ class NestedDict(BaseNested, dict):
 
     def iterate(self):
         return self.items()
+
+
+    def merge(self, data, do_ration=True):
+        if not isinstance(data, dict):
+            raise TypeError("Must be a dict or NestedDict")
+        for key, val in data.items():
+            if key not in self:
+                self[key] = val
+            elif isinstance(self[key], type(val)):
+                if isinstance(val, (dict, list)):
+                    self[key].merge(val, do_ration=False)
+                else:
+                    self[key] = val
+            else:
+                raise TypeError("Type mismatch %s / %s" %
+                                (type(self[key]), type(val)))
+        if do_ration:
+            self.rationalize()
 
 
     def __getitem__(self, key):
