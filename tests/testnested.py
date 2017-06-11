@@ -1,10 +1,10 @@
-from codepunks.config import Config
+from codepunks.nested import NestedDict, NestedList
 
 
 def testDictEquality():
     d = {"s1": {"k1": "v1"}, "s2": {"k2": "v2"}}
 
-    c = Config()
+    c = NestedDict()
     c.dict("s1")
     c["s1"]["k1"] = "v1"
     c.dict("s2")
@@ -14,7 +14,7 @@ def testDictEquality():
 
 
 def testMissingException():
-    c = Config()
+    c = NestedDict()
     c["s1"] = "v1"
 
     assert c["s1"] == "v1"
@@ -27,20 +27,20 @@ def testMissingException():
 
 
 def testMissingNone():
-    c = Config(notfound=None)
+    c = NestedDict(notfound=None)
     c["s1"] = "v1"
     assert c["s1"] == "v1"
     assert c["s2"] is None
 
 
 def testDictBuild():
-    c = Config()
+    c = NestedDict()
     d3 = c.dict("d1").dict("d2").dict("d3")
     assert c["d1"]["d2"]["d3"] is d3
 
 
 def testRoot():
-    c = Config()
+    c = NestedDict()
     d1 = c.dict("d1")
     d2 = d1.dict("d2")
     d3 = d2.dict("d3")
@@ -50,7 +50,7 @@ def testRoot():
 
 
 def testParent():
-    c = Config()
+    c = NestedDict()
     d1 = c.dict("d1")
     d2 = d1.dict("d2")
     d3 = d2.dict("d3")
@@ -60,7 +60,7 @@ def testParent():
 
 
 def testList():
-    c = Config()
+    c = NestedDict()
     l1 = c.list("l1")
     ld1 = l1.dict()
     d2 = ld1.dict("d2")
@@ -69,7 +69,7 @@ def testList():
 
 
 def testListMissingException():
-    c = Config()
+    c = NestedDict()
     l1 = c.list("l1")
     l1.dict()
 
@@ -82,14 +82,14 @@ def testListMissingException():
 
 
 def testListMissingNone():
-    c = Config(notfound=None)
+    c = NestedDict(notfound=None)
     l1 = c.list("l1")
     l1.dict()
     assert c["l1"][1] is None
 
 
 def testFind():
-    c = Config()
+    c = NestedDict()
     d1 = c.dict("d1")
     k1 = d1["k1"] = "v1"
     d2 = d1.dict("d2")
@@ -109,7 +109,7 @@ def testFind():
 
 
 def testFindList():
-    c = Config()
+    c = NestedDict()
     d1 = c.dict("d1")
     k1 = d1["k1"] = "v1"
     d2 = d1.dict("d2")
@@ -130,3 +130,58 @@ def testFindList():
     assert c["d1/d2/l3/1"] is d4
     assert c["d1/d2/l3/1/k4"] is k4
     assert c["d1/d2/l3/1/k4"] == "v4"
+
+
+def testRationalize():
+    c = NestedDict()
+    d1 = c.dict("d1")
+    d2 = d1["d2"] = {}
+    k2 = d2["k2"] = "v2"
+    l2 = d1["l2"] = []
+    k3 = l2.append("k3")
+    c2 = c.copy()
+    c.rationalize()
+
+    assert isinstance(d1["d2"], NestedDict)
+    assert isinstance(d1["l2"], NestedList)
+    assert c == c2
+
+
+def testAutoRationalizeDict():
+    c = NestedDict()
+    d1 = c.dict("d1")
+    d2 = d1["d2"] = {}
+    k2 = d2["k2"] = "v2"
+    l2 = d1["l2"] = []
+    k3 = l2.append("k3")
+    c2 = c.copy()
+
+    assert isinstance(d1["d2"], dict)
+    assert isinstance(d1["l2"], list)
+
+    assert c["d1/d2/k2"] is k2
+
+    assert isinstance(d1["d2"], NestedDict)
+    assert isinstance(d1["l2"], NestedList)
+    assert c == c2
+
+
+def testAutoRationalizeList():
+    c = NestedDict()
+    l1 = c.list("l1")
+    d2 = l1.append({})
+    k2 = d2["k2"] = "v2"
+    l2 = l1.append([])
+    k3 = "k3"
+    l2.append(k3)
+    c2 = c.copy()
+
+    assert isinstance(l1[0], dict)
+    assert isinstance(l1[1], list)
+
+    assert c["l1/1/0"] is k3
+
+    assert isinstance(l1[0], NestedDict)
+    assert isinstance(l1[1], NestedList)
+    assert c == c2
+    

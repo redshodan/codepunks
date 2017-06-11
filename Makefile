@@ -36,7 +36,7 @@ $(PYLIB)/codepunks.egg-link: venv/bin/python setup.py setup.cfg README.md
 	touch $@
 
 flake8: $(FLAKE8)
-$(FLAKE8): $(PYTEST)
+$(FLAKE8):
 	$(PIP) install flake8
 
 check: $(FLAKE8)
