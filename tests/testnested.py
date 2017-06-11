@@ -220,7 +220,7 @@ def testMergeEmptyDict():
 
 
 def testMergeEmptyList():
-    d = [ [ [ "k3", "v3"] ] ]
+    d = [[["k3", "v3"]]]
     c = NestedList()
     c.merge(d)
 
@@ -245,7 +245,7 @@ def testMergeDict():
 
 
 def testMergeList():
-    d = [ [ [ "k3", "v3"] ] ]
+    d = [[["k3", "v3"]]]
     c = NestedList()
     c.merge(d)
 
