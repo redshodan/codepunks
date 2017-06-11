@@ -15,11 +15,43 @@ class BaseNested():
         return json.dumps(self, sort_keys=True, indent=4)
 
 
+    def dict(self, key=None):
+        nd = NestedDict(parent=self, notfound=self.notfound)
+        self.__store__(key, nd)
+        return nd
+
+
+    def list(self, key=None):
+        nl = NestedList(parent=self, notfound=self.notfound)
+        self.__store__(key, nl)
+        return nl
+
+
     def root(self):
         if self.parent:
             return self.parent.root()
         else:
             return self
+
+
+    def rationalize(self):
+        for key, val in self.iterate():
+            if isinstance(val, (NestedDict, NestedList)):
+                val.rationalize()
+            elif isinstance(val, list):
+                nl = NestedList(parent=self, notfound=self.notfound)
+                nl.extend(val)
+                self.__store__(key, nl)
+                nl.rationalize()
+            elif isinstance(val, dict):
+                nd = NestedDict(parent=self, notfound=self.notfound)
+                nd.update(val)
+                self.__store__(key, nd)
+                nd.rationalize()
+
+
+    def merge(self, data):
+        pass
 
 
 class NestedList(BaseNested, list):
@@ -32,16 +64,11 @@ class NestedList(BaseNested, list):
             raise TypeError("Wrong type " + str(type(data)))
 
 
-    def dict(self):
-        nd = NestedDict(parent=self, notfound=self.notfound)
-        self.append(nd)
-        return nd
-
-
-    def list(self):
-        nl = NestedList(parent=self, notfound=self.notfound)
-        self.append(nl)
-        return nl
+    def __store__(self, key, value):
+        if key is not None:
+            self[key] = value
+        else:
+            self.append(value)
 
 
     def append(self, item):
@@ -49,21 +76,8 @@ class NestedList(BaseNested, list):
         return item
 
 
-    def rationalize(self):
-        for index in range(len(self)):
-            item = self[index]
-            if isinstance(item, (NestedDict, NestedList)):
-                item.rationalize()
-            elif isinstance(item, list):
-                nl = NestedList(parent=self, notfound=self.notfound)
-                nl.extend(item)
-                self[index] = nl
-                nl.rationalize()
-            elif isinstance(item, dict):
-                nd = NestedDict(parent=self, notfound=self.notfound)
-                nd.update(item)
-                self[index] = nd
-                nd.rationalize()
+    def iterate(self):
+        return enumerate(self)
 
 
     def __getitem__(self, key):
@@ -109,30 +123,12 @@ class NestedDict(BaseNested, dict):
             return None
 
 
-    def dict(self, key):
-        self[key] = NestedDict(parent=self, notfound=self.notfound)
-        return self[key]
+    def __store__(self, key, value):
+        self[key] = value
 
 
-    def list(self, key):
-        self[key] = NestedList(parent=self, notfound=self.notfound)
-        return self[key]
-
-
-    def rationalize(self):
-        for key, val in self.items():
-            if isinstance(val, (NestedDict, NestedList)):
-                val.rationalize()
-            elif isinstance(val, list):
-                nl = NestedList(parent=self, notfound=self.notfound)
-                nl.extend(val)
-                self[key] = nl
-                nl.rationalize()
-            elif isinstance(val, dict):
-                nd = NestedDict(parent=self, notfound=self.notfound)
-                nd.update(val)
-                self[key] = nd
-                nd.rationalize()
+    def iterate(self):
+        return self.items()
 
 
     def __getitem__(self, key):
