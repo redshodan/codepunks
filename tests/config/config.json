@@ -1,0 +1,15 @@
+{
+    "jsonsection1":
+    {
+        "jsons1key1": "jsons1val1",
+        "jsons1key2": "jsons1val2",
+        "jsons1key3": "jsons1val3"
+    },
+
+    "jsonsection2":
+    {
+        "jsons2key1": "jsons2val1",
+        "jsons2key2": "jsons2val2",
+        "jsons2key3": "jsons2val3"
+    }
+}
