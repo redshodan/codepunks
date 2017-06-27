@@ -1,2 +1,4 @@
+<config>
 <xmlsection1 xmls1key1="xmls1val1" xmls1key2="xmls1val2" xmls1key3="xmls1val3"/>
 <xmlsection2 xmls2key1="xmls2val1" xmls2key2="xmls2val2" xmls2key3="xmls2val3"/>
+</config>
