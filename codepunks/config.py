@@ -99,14 +99,34 @@ class YAMLSource(ConfigSource):
 
 class DBSource(ConfigSource):
     def __init__(self, db_creds):
-        super().__init__(self, None)
+        super().__init__(None)
         self.db_creds = db_creds
 
 
-class CLISource(ConfigSource):
-    def __init__(self, args):
-        super().__init__(self, None)
+##
+# mappings:
+#   None: All args added the config
+#   {}: Empty dict prevents any from added
+#   {"key": None}: Filters args by key, no mapping into the dict. added top
+#   {"key": "some/path"}: Filters args by key, mapped into the dict by path
+#
+class ArgParserSource(ConfigSource):
+    def __init__(self, args, mappings=None):
+        super().__init__(None)
         self.args = args
+        self.mappings = mappings
+
+
+    def parse(self):
+        for key, val in vars(self.args).items():
+            if self.mappings is None:
+                self.dict[key] = val
+            else:
+                if key in self.mappings:
+                    path = self.mappings[key]
+                    if not path:
+                        path = key
+                    self.dict[path] = val
 
 
 class Config(NestedDict):
