@@ -53,7 +53,7 @@ sdist:
 	$(PYTHON) setup.py sdist
 
 dist-clean:
-	rm -rf venv .eggs
+	rm -rf venv .eggs dist
 
 tests-clean:
 	rm -f tests/tmp
